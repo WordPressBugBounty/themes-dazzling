@@ -1,36 +1,61 @@
 /**
- * Theme Customizer enhancements for a better user experience.
+ * Live preview for the Site Identity settings that use postMessage: the site
+ * title, tagline and header text colour.
  *
- * Contains handlers to make Theme Customizer preview reload changes asynchronously.
+ * Mirrors what dazzling_header_style() prints, so the preview and the
+ * published site agree: the colour applies to the site title only, and
+ * hiding the header text hides the title text and tagline but not a header
+ * image used as the logo.
  */
+( function( $, api ) {
+	'use strict';
 
-( function( $ ) {
-	// Site title and description.
-	wp.customize( 'blogname', function( value ) {
+	var hidden = {
+		position: 'absolute',
+		clip: 'rect(1px, 1px, 1px, 1px)',
+		'clip-path': 'inset(50%)',
+		width: '1px',
+		height: '1px',
+		margin: '-1px',
+		padding: '0',
+		border: '0',
+		overflow: 'hidden',
+	};
+	var shown = {
+		position: '',
+		clip: '',
+		'clip-path': '',
+		width: '',
+		height: '',
+		margin: '',
+		padding: '',
+		border: '',
+		overflow: '',
+	};
+
+	api( 'blogname', function( value ) {
 		value.bind( function( to ) {
-			$( '.site-title a' ).text( to );
+			$( '.navbar-brand' ).text( to );
 		} );
 	} );
-	wp.customize( 'blogdescription', function( value ) {
+
+	api( 'blogdescription', function( value ) {
 		value.bind( function( to ) {
 			$( '.site-description' ).text( to );
 		} );
 	} );
-	// Header text color.
-	wp.customize( 'header_textcolor', function( value ) {
+
+	api( 'header_textcolor', function( value ) {
 		value.bind( function( to ) {
+			// The printed rule would otherwise win over the inline styles below.
+			$( '#dazzling-header-text' ).remove();
+
 			if ( 'blank' === to ) {
-				$( '.navbar > .container .navbar-brand, .site-description' ).css( {
-					'clip': 'rect(1px, 1px, 1px, 1px)',
-					'position': 'absolute'
-				} );
+				$( '.navbar-brand, .site-description' ).css( hidden );
 			} else {
-				$( '.navbar > .container .navbar-brand, .site-description' ).css( {
-					'clip': 'auto',
-					'color': to,
-					'position': 'relative'
-				} );
+				$( '.navbar-brand, .site-description' ).css( shown );
+				$( '.navbar > .container .navbar-brand' ).css( 'color', to );
 			}
 		} );
 	} );
-} )( jQuery );
+}( jQuery, wp.customize ) );

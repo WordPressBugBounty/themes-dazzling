@@ -8,9 +8,12 @@
 get_header();
 ?>
 		<div id="primary" class="content-area image-attachment col-sm-12 col-md-8">
-			<div id="main" class="site-main" role="main">
+			<main id="main" class="site-main">
 
-			<?php while ( have_posts() ) : the_post(); ?>
+			<?php
+			while ( have_posts() ) :
+				the_post();
+				?>
 
 				<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 					<header class="entry-header">
@@ -31,41 +34,42 @@ get_header();
 						<div class="entry-attachment">
 							<div class="attachment">
 								<?php
-									/**
-									 * Grab the IDs of all the image attachments in a gallery so we can get the URL of the next adjacent image in a gallery,
-									 * or the first image (if we're looking at the last image in a gallery), or, in a gallery of one, just the link to that image file
-									 */
-									$attachments = array_values( get_children( array(
-										'post_parent'    => $post->post_parent,
-										'post_status'    => 'inherit',
-										'post_type'      => 'attachment',
-										'post_mime_type' => 'image',
-										'order'          => 'ASC',
-										'orderby'        => 'menu_order ID'
-									) ) );
-									foreach ( $attachments as $k => $attachment ) {
-										if ( $attachment->ID == $post->ID )
-											break;
+								/*
+								 * The image links to the next image of the same gallery (the
+								 * first after the last), or to the file itself. An unattached
+								 * image used to link to the next of every unattached image on
+								 * the site, which was a query of the whole media library.
+								 */
+								$dazzling_next_url = wp_get_attachment_url();
+								if ( $post->post_parent ) {
+									$dazzling_ids = wp_list_pluck(
+										get_children(
+											array(
+												'post_parent' => $post->post_parent,
+												'post_status' => 'inherit',
+												'post_type' => 'attachment',
+												'post_mime_type' => 'image',
+												'order'   => 'ASC',
+												'orderby' => 'menu_order ID',
+											)
+										),
+										'ID'
+									);
+									$dazzling_ids = array_values( array_map( 'intval', $dazzling_ids ) );
+									if ( count( $dazzling_ids ) > 1 ) {
+										$dazzling_index    = array_search( (int) $post->ID, $dazzling_ids, true );
+										$dazzling_next_id  = ( false !== $dazzling_index && isset( $dazzling_ids[ $dazzling_index + 1 ] ) ) ? $dazzling_ids[ $dazzling_index + 1 ] : $dazzling_ids[0];
+										$dazzling_next_url = get_attachment_link( $dazzling_next_id );
 									}
-									$k++;
-									// If there is more than 1 attachment in a gallery
-									if ( count( $attachments ) > 1 ) {
-										if ( isset( $attachments[ $k ] ) )
-											// get the URL of the next image attachment
-											$next_attachment_url = get_attachment_link( $attachments[ $k ]->ID );
-										else
-											// or get the URL of the first image attachment
-											$next_attachment_url = get_attachment_link( $attachments[ 0 ]->ID );
-									} else {
-										// or, if there's only 1 image, get the URL of the image
-										$next_attachment_url = wp_get_attachment_url();
-									}
+								}
 								?>
 
-								<a href="<?php echo esc_url( $next_attachment_url ); ?>" title="<?php the_title_attribute(); ?>" rel="attachment"><?php
-									$attachment_size = apply_filters( 'dazzling_attachment_size', array( 1200, 1200 ) ); // Filterable image size.
-									echo wp_get_attachment_image( $post->ID, $attachment_size );
-								?></a>
+								<a href="<?php echo esc_url( $dazzling_next_url ); ?>" rel="attachment">
+								<?php
+									$dazzling_attachment_size = apply_filters( 'dazzling_attachment_size', array( 1200, 1200 ) ); // Filterable image size.
+									echo wp_get_attachment_image( $post->ID, $dazzling_attachment_size );
+								?>
+								</a>
 							</div><!-- .attachment -->
 
 							<?php if ( ! empty( $post->post_excerpt ) ) : ?>
@@ -77,10 +81,12 @@ get_header();
 
 						<?php the_content(); ?>
 						<?php
-							wp_link_pages( array(
-								'before' => '<div class="page-links">' . __( 'Pages:', 'dazzling' ),
-								'after'  => '</div>',
-							) );
+							wp_link_pages(
+								array(
+									'before' => '<div class="page-links">' . __( 'Pages:', 'dazzling' ),
+									'after'  => '</div>',
+								)
+							);
 						?>
 
 					</div><!-- .entry-content -->
@@ -91,14 +97,19 @@ get_header();
 
 				<?php
 					// If comments are open or we have at least one comment, load up the comment template
-					if ( comments_open() || '0' != get_comments_number() )
-						comments_template();
+				if ( comments_open() || get_comments_number() ) {
+					comments_template();
+				}
 				?>
 
 			<?php endwhile; // end of the loop. ?>
 
-			</div><!-- #content -->
+			</main><!-- #main -->
 		</div><!-- #primary -->
 
-<?php get_sidebar(); ?>
+<?php
+if ( dazzling_show_sidebar() ) {
+	get_sidebar();
+}
+?>
 <?php get_footer(); ?>

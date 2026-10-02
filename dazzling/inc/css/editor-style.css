@@ -1,0 +1,79 @@
+/*
+ * Block editor styles for Dazzling.
+ *
+ * Loaded with add_editor_style(), which scopes every selector to the editor
+ * canvas. Keeps the canvas close to the published post: the theme's body
+ * font, size and colour, its heading colours and sizes, and the 730px
+ * content column beside the sidebar ($content_width).
+ */
+
+body {
+	font-family: "Helvetica Neue", helvetica, arial, sans-serif;
+	font-size: 14px;
+	line-height: 1.7;
+	color: #6b6b6b;
+}
+
+.wp-block {
+	max-width: 730px;
+}
+
+.wp-block[data-align="wide"] {
+	max-width: 1140px;
+}
+
+.wp-block[data-align="full"] {
+	max-width: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	color: #1fa67a;
+}
+
+h1 {
+	font-size: 32px;
+}
+
+h2 {
+	font-size: 28px;
+}
+
+h3 {
+	font-size: 24px;
+}
+
+h4 {
+	font-size: 18px;
+}
+
+h5 {
+	font-size: 16px;
+}
+
+h6 {
+	font-size: 14px;
+}
+
+.editor-post-title__input,
+.wp-block-post-title {
+	font-size: 32px;
+	color: #444;
+}
+
+a {
+	color: #1fa67a;
+	text-decoration: none;
+}
+
+a:hover,
+a:focus {
+	color: #333;
+}

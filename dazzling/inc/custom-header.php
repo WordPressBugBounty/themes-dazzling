@@ -1,16 +1,9 @@
 <?php
 /**
- * Sample implementation of the Custom Header feature
- * http://codex.wordpress.org/Custom_Headers
+ * Custom header support: the header image doubles as the site logo in the
+ * navbar, and the header text colour sets the site title's colour.
  *
- * You can add an optional custom header image to header.php like so ...
-
-	<?php if ( get_header_image() ) : ?>
-	<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
-		<img src="<?php header_image(); ?>" width="<?php echo get_custom_header()->width; ?>" height="<?php echo get_custom_header()->height; ?>" alt="">
-	</a>
-	<?php endif; // End header image check. ?>
-
+ * @link https://developer.wordpress.org/themes/functionality/custom-headers/
  *
  * @package dazzling
  */
@@ -18,104 +11,66 @@
 /**
  * Setup the WordPress core custom header feature.
  *
+ * The Appearance > Header screen these arguments used to style for has
+ * redirected to the Customizer since WordPress 4.1, so only the front-end
+ * callback remains.
+ *
  * @uses dazzling_header_style()
- * @uses dazzling_admin_header_style()
- * @uses dazzling_admin_header_image()
  *
  * @package dazzling
  */
 function dazzling_custom_header_setup() {
-	add_theme_support( 'custom-header', apply_filters( 'dazzling_custom_header_args', array(
-		'default-image'          => '',
-		'default-text-color'     => '000000',
-		'width'                  => 300,
-		'height'                 => 66,
-		'flex-height'            => true,
-		'wp-head-callback'       => 'dazzling_header_style',
-		'admin-head-callback'    => 'dazzling_admin_header_style',
-		'admin-preview-callback' => 'dazzling_admin_header_image',
-	) ) );
+	add_theme_support(
+		'custom-header',
+		apply_filters(
+			'dazzling_custom_header_args',
+			array(
+				'default-image'      => '',
+				'default-text-color' => '1FA67A',
+				'width'              => 300,
+				'height'             => 66,
+				'flex-height'        => true,
+				'wp-head-callback'   => 'dazzling_header_style',
+			)
+		)
+	);
 }
 add_action( 'after_setup_theme', 'dazzling_custom_header_setup' );
 
 if ( ! function_exists( 'dazzling_header_style' ) ) :
-/**
- * Styles the header image and text displayed on the blog
- *
- * @see dazzling_custom_header_setup().
- */
-function dazzling_header_style() {
-	$header_text_color = get_header_textcolor();
+	/**
+	 * Print the site title colour, or hide the title and tagline, as set under
+	 * Customize > Site Identity / Colors.
+	 *
+	 * Prints nothing for the default colour: style.css already sets it. In
+	 * 2.1.x this early return was dropped while the default text colour was
+	 * 000000, so every site that had never picked a colour got a black title
+	 * instead of the theme's green, while the Customizer showed green.
+	 *
+	 * @see dazzling_custom_header_setup().
+	 */
+	function dazzling_header_style() {
+		$header_text_color = get_header_textcolor();
 
-	// If we get this far, we have custom styles. Let's do this.
-	?>
-	<style type="text/css">
-	<?php
-		// Has the text been hidden?
-		if ( 'blank' == $header_text_color ) :
-	?>
-		.site-title,
-		.site-description {
-			position: absolute;
-			clip: rect(1px, 1px, 1px, 1px);
+		if ( get_theme_support( 'custom-header', 'default-text-color' ) === $header_text_color ) {
+			return;
 		}
-	<?php
-		// If the user has set a custom color for the text use that
-		else :
-	?>
-		.navbar > .container .navbar-brand {
-			color: #<?php echo $header_text_color; ?>;
+
+		if ( 'blank' === $header_text_color ) {
+			/*
+			 * Hide the text only, and only visually. This used to hide the whole
+			 * .site-title, which also holds the header image -- so unticking
+			 * "Display Site Title and Tagline" removed the logo as well.
+			 */
+			$css = '.navbar-brand, .site-description { position: absolute; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; }';
+		} else {
+			$hex = sanitize_hex_color_no_hash( $header_text_color );
+			if ( ! $hex ) {
+				return;
+			}
+			$css = '.navbar > .container .navbar-brand { color: #' . $hex . '; }';
 		}
-	<?php endif; ?>
-	</style>
-	<?php
-}
+
+		echo '<style id="dazzling-header-text">' . $css . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed CSS around a validated hex colour.
+	}
 endif; // dazzling_header_style
-
-if ( ! function_exists( 'dazzling_admin_header_style' ) ) :
-/**
- * Styles the header image displayed on the Appearance > Header admin panel.
- *
- * @see dazzling_custom_header_setup().
- */
-function dazzling_admin_header_style() {
-?>
-	<style type="text/css">
-		.appearance_page_custom-header #headimg {
-			border: none;
-		}
-		#headimg h1,
-		#desc {
-		}
-		#headimg h1 {
-		}
-		#headimg h1 a {
-		}
-		#desc {
-		}
-		#headimg img {
-		}
-	</style>
-<?php
-}
-endif; // dazzling_admin_header_style
-
-if ( ! function_exists( 'dazzling_admin_header_image' ) ) :
-/**
- * Custom header image markup displayed on the Appearance > Header admin panel.
- *
- * @see dazzling_custom_header_setup().
- */
-function dazzling_admin_header_image() {
-	$style = sprintf( ' style="color:#%s;"', get_header_textcolor() );
-?>
-	<div id="headimg">
-		<h1 class="displaying-header-text"><a id="name"<?php echo $style; ?> onclick="return false;" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
-		<div class="displaying-header-text" id="desc"<?php echo $style; ?>><?php bloginfo( 'description' ); ?></div>
-		<?php if ( get_header_image() ) : ?>
-		<img src="<?php header_image(); ?>" alt="">
-		<?php endif; ?>
-	</div>
-<?php
-}
-endif; // dazzling_admin_header_image

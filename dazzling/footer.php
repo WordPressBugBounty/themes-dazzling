@@ -7,27 +7,31 @@
  * @package dazzling
  */
 ?>
-                </div><!-- close .row -->
-            </div><!-- close .container -->
-        </div><!-- close .site-content -->
+				</div><!-- close .row -->
+			</div><!-- close .container -->
+		</div><!-- close .site-content -->
 
 	<div id="footer-area">
 		<div class="container footer-inner">
 			<?php get_sidebar( 'footer' ); ?>
 		</div>
 
-		<footer id="colophon" class="site-footer" role="contentinfo">
+		<footer id="colophon" class="site-footer">
 			<div class="site-info container">
-				<?php if( of_get_option('footer_social') ) dazzling_social_icons(); ?>
-				<nav role="navigation" class="col-md-6">
+				<?php
+				if ( of_get_option( 'footer_social' ) ) {
+					dazzling_social_icons();
+				}
+				?>
+				<nav class="col-md-6" aria-label="<?php esc_attr_e( 'Footer', 'dazzling' ); ?>">
 					<?php dazzling_footer_links(); ?>
 				</nav>
 				<div class="copyright col-md-6">
-					<?php echo of_get_option( 'custom_footer_text', 'dazzling' ); ?>
+					<?php echo wp_kses_post( of_get_option( 'custom_footer_text', '' ) ); ?>
 					<?php dazzling_footer_info(); ?>
 				</div>
 			</div><!-- .site-info -->
-			<button class="scroll-to-top"><i class="fa fa-angle-up"></i></button><!-- .scroll-to-top -->
+			<button type="button" class="scroll-to-top"><i class="fa fa-angle-up" aria-hidden="true"></i><span class="screen-reader-text"><?php esc_html_e( 'Back to top', 'dazzling' ); ?></span></button><!-- .scroll-to-top -->
 		</footer><!-- #colophon -->
 	</div>
 </div><!-- #page -->

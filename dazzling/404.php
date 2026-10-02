@@ -11,11 +11,11 @@ get_header(); ?>
 
 				<section class="error-404 not-found">
 					<header class="page-header">
-						<h1 class="page-title"><?php _e( 'Oops! That page can&rsquo;t be found.', 'dazzling' ); ?></h1>
+						<h1 class="page-title"><?php echo wp_kses_post( __( 'Oops! That page can&rsquo;t be found.', 'dazzling' ) ); ?></h1>
 					</header><!-- .page-header -->
 
 					<div class="page-content">
-						<p><?php _e( 'It looks like nothing was found at this location. Maybe try one of the links below or a search?', 'dazzling' ); ?></p>
+						<p><?php esc_html_e( 'It looks like nothing was found at this location. Maybe try one of the links below or a search?', 'dazzling' ); ?></p>
 
 						<?php get_search_form(); ?>
 
@@ -23,16 +23,18 @@ get_header(); ?>
 
 						<?php if ( dazzling_categorized_blog() ) : // Only show the widget if site has multiple categories. ?>
 						<div class="widget widget_categories">
-							<h2 class="widgettitle"><?php _e( 'Most Used Categories', 'dazzling' ); ?></h2>
+							<h2 class="widgettitle"><?php esc_html_e( 'Most Used Categories', 'dazzling' ); ?></h2>
 							<ul>
 							<?php
-								wp_list_categories( array(
-									'orderby'    => 'count',
-									'order'      => 'DESC',
-									'show_count' => 1,
-									'title_li'   => '',
-									'number'     => 10,
-								) );
+								wp_list_categories(
+									array(
+										'orderby'    => 'count',
+										'order'      => 'DESC',
+										'show_count' => 1,
+										'title_li'   => '',
+										'number'     => 10,
+									)
+								);
 							?>
 							</ul>
 						</div><!-- .widget -->
@@ -40,8 +42,8 @@ get_header(); ?>
 
 						<?php
 						/* translators: %1$s: smiley */
-						$archive_content = '<p>' . sprintf( __( 'Try looking in the monthly archives. %1$s', 'dazzling' ), convert_smilies( ':)' ) ) . '</p>';
-						the_widget( 'WP_Widget_Archives', 'dropdown=1', "after_title=</h2>$archive_content" );
+						$dazzling_archive_content = '<p>' . sprintf( esc_html__( 'Try looking in the monthly archives. %1$s', 'dazzling' ), convert_smilies( ':)' ) ) . '</p>';
+						the_widget( 'WP_Widget_Archives', 'dropdown=1', "after_title=</h2>$dazzling_archive_content" );
 						?>
 
 						<?php the_widget( 'WP_Widget_Tag_Cloud' ); ?>

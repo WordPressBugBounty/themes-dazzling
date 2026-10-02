@@ -8,7 +8,7 @@
  */
 
 get_header(); ?>
-		<section id="primary" class="content-area col-sm-12 col-md-8 <?php echo esc_attr( of_get_option( 'site_layout' ) ); ?>">
+		<section id="primary" class="content-area col-sm-12 col-md-8">
 			<main id="main" class="site-main" role="main">
 
 			<?php if ( have_posts() ) : ?>
@@ -16,68 +16,79 @@ get_header(); ?>
 				<header class="page-header">
 					<h1 class="page-title">
 						<?php
-							if ( is_category() ) :
-								single_cat_title();
+						if ( is_category() ) :
+							single_cat_title();
 
-							elseif ( is_tag() ) :
-								single_tag_title();
+						elseif ( is_tag() ) :
+							single_tag_title();
 
-							elseif ( is_author() ) :
-								printf( __( 'Author: %s', 'dazzling' ), '<span class="vcard">' . get_the_author() . '</span>' );
+						elseif ( is_author() ) :
+							/* translators: %s: author name */
+							printf( esc_html__( 'Author: %s', 'dazzling' ), '<span class="vcard">' . esc_html( get_the_author() ) . '</span>' );
 
-							elseif ( is_day() ) :
-								printf( __( 'Day: %s', 'dazzling' ), '<span>' . get_the_date() . '</span>' );
+						elseif ( is_day() ) :
+							/* translators: %s: date */
+							printf( esc_html__( 'Day: %s', 'dazzling' ), '<span>' . esc_html( get_the_date() ) . '</span>' );
 
-							elseif ( is_month() ) :
-								printf( __( 'Month: %s', 'dazzling' ), '<span>' . get_the_date( _x( 'F Y', 'monthly archives date format', 'dazzling' ) ) . '</span>' );
+						elseif ( is_month() ) :
+							/* translators: %s: month and year */
+							printf( esc_html__( 'Month: %s', 'dazzling' ), '<span>' . esc_html( get_the_date( _x( 'F Y', 'monthly archives date format', 'dazzling' ) ) ) . '</span>' );
 
-							elseif ( is_year() ) :
-								printf( __( 'Year: %s', 'dazzling' ), '<span>' . get_the_date( _x( 'Y', 'yearly archives date format', 'dazzling' ) ) . '</span>' );
+						elseif ( is_year() ) :
+							/* translators: %s: year */
+							printf( esc_html__( 'Year: %s', 'dazzling' ), '<span>' . esc_html( get_the_date( _x( 'Y', 'yearly archives date format', 'dazzling' ) ) ) . '</span>' );
 
-							elseif ( is_tax( 'post_format', 'post-format-aside' ) ) :
-								_e( 'Asides', 'dazzling' );
+						elseif ( is_tax( 'post_format', 'post-format-aside' ) ) :
+							esc_html_e( 'Asides', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-gallery' ) ) :
-								_e( 'Galleries', 'dazzling');
+						elseif ( is_tax( 'post_format', 'post-format-gallery' ) ) :
+							esc_html_e( 'Galleries', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-image' ) ) :
-								_e( 'Images', 'dazzling');
+						elseif ( is_tax( 'post_format', 'post-format-image' ) ) :
+							esc_html_e( 'Images', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-video' ) ) :
-								_e( 'Videos', 'dazzling' );
+						elseif ( is_tax( 'post_format', 'post-format-video' ) ) :
+							esc_html_e( 'Videos', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-quote' ) ) :
-								_e( 'Quotes', 'dazzling' );
+						elseif ( is_tax( 'post_format', 'post-format-quote' ) ) :
+							esc_html_e( 'Quotes', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-link' ) ) :
-								_e( 'Links', 'dazzling' );
+						elseif ( is_tax( 'post_format', 'post-format-link' ) ) :
+							esc_html_e( 'Links', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-status' ) ) :
-								_e( 'Statuses', 'dazzling' );
+						elseif ( is_tax( 'post_format', 'post-format-status' ) ) :
+							esc_html_e( 'Statuses', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-audio' ) ) :
-								_e( 'Audios', 'dazzling' );
+						elseif ( is_tax( 'post_format', 'post-format-audio' ) ) :
+							esc_html_e( 'Audios', 'dazzling' );
 
-							elseif ( is_tax( 'post_format', 'post-format-chat' ) ) :
-								_e( 'Chats', 'dazzling' );
+						elseif ( is_tax( 'post_format', 'post-format-chat' ) ) :
+							esc_html_e( 'Chats', 'dazzling' );
 
-							else :
-								_e( 'Archives', 'dazzling' );
+						elseif ( is_tax() ) :
+							// Any other taxonomy (product categories, portfolio types, ...) used to say "Archives".
+							single_term_title();
 
-							endif;
+						else :
+							esc_html_e( 'Archives', 'dazzling' );
+
+						endif;
 						?>
 					</h1>
 					<?php
-						// Show an optional term description.
-						$term_description = term_description();
-						if ( ! empty( $term_description ) ) :
-							printf( '<div class="taxonomy-description">%s</div>', $term_description );
-						endif;
+					// Show an optional term description.
+					$dazzling_term_description = term_description();
+					if ( ! empty( $dazzling_term_description ) ) :
+						printf( '<div class="taxonomy-description">%s</div>', wp_kses_post( $dazzling_term_description ) );
+					endif;
 					?>
 				</header><!-- .page-header -->
 
 				<?php /* Start the Loop */ ?>
-				<?php while ( have_posts() ) : the_post(); ?>
+				<?php
+				while ( have_posts() ) :
+					the_post();
+					?>
 
 					<?php
 						/* Include the Post-Format-specific template for the content.
@@ -100,5 +111,9 @@ get_header(); ?>
 			</main><!-- #main -->
 		</section><!-- #primary -->
 
-<?php get_sidebar(); ?>
+<?php
+if ( dazzling_show_sidebar() ) {
+	get_sidebar();
+}
+?>
 <?php get_footer(); ?>
